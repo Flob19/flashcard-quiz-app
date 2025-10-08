@@ -164,13 +164,13 @@ export const ImageViewer = ({ src, alt = "Image", isOpen, onClose }: ImageViewer
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-none">
         <div className="relative w-full h-full flex items-center justify-center">
-          {/* Controls */}
-          <div className="absolute top-4 left-4 z-10 flex gap-2">
+          {/* Controls - better mobile layout */}
+          <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap max-w-[calc(100vw-2rem)]">
             <Button
               variant="secondary"
               size="icon"
               onClick={handleZoomOut}
-              className="bg-black/50 hover:bg-black/70 text-white border-white/20"
+              className="bg-black/50 hover:bg-black/70 text-white border-white/20 h-10 w-10"
             >
               <ZoomOut className="h-4 w-4" />
             </Button>
@@ -178,7 +178,7 @@ export const ImageViewer = ({ src, alt = "Image", isOpen, onClose }: ImageViewer
               variant="secondary"
               size="icon"
               onClick={handleZoomIn}
-              className="bg-black/50 hover:bg-black/70 text-white border-white/20"
+              className="bg-black/50 hover:bg-black/70 text-white border-white/20 h-10 w-10"
             >
               <ZoomIn className="h-4 w-4" />
             </Button>
@@ -186,7 +186,7 @@ export const ImageViewer = ({ src, alt = "Image", isOpen, onClose }: ImageViewer
               variant="secondary"
               size="icon"
               onClick={handleRotate}
-              className="bg-black/50 hover:bg-black/70 text-white border-white/20"
+              className="bg-black/50 hover:bg-black/70 text-white border-white/20 h-10 w-10"
             >
               <RotateCw className="h-4 w-4" />
             </Button>
@@ -194,7 +194,7 @@ export const ImageViewer = ({ src, alt = "Image", isOpen, onClose }: ImageViewer
               variant="secondary"
               size="icon"
               onClick={handleDownload}
-              className="bg-black/50 hover:bg-black/70 text-white border-white/20"
+              className="bg-black/50 hover:bg-black/70 text-white border-white/20 h-10 w-10"
             >
               <Download className="h-4 w-4" />
             </Button>
@@ -238,8 +238,8 @@ export const ImageViewer = ({ src, alt = "Image", isOpen, onClose }: ImageViewer
             />
           </div>
 
-          {/* Info overlay */}
-          <div className="absolute bottom-4 left-4 z-10 bg-black/50 text-white px-3 py-2 rounded-lg text-sm">
+          {/* Info overlay - hidden on mobile to prevent blocking */}
+          <div className="absolute bottom-4 left-4 z-10 bg-black/50 text-white px-3 py-2 rounded-lg text-sm hidden sm:block">
             Zoom: {Math.round(scale * 100)}% | Rotation: {rotation}° | 
             <span className="ml-2 text-xs opacity-70">
               Desktop: mouse wheel to zoom, drag to move, R to rotate, 0 to reset, Esc to close<br/>

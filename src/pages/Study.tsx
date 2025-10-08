@@ -85,38 +85,40 @@ const Study = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <div className="flex justify-between items-center mb-6">
+    <div className="min-h-screen bg-background py-4 sm:py-8">
+      <div className="container mx-auto px-2 sm:px-4 max-w-4xl">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
           <Button
             variant="ghost"
             onClick={() => navigate('/')}
-            className="hover:bg-primary/10 hover:text-primary"
+            className="hover:bg-primary/10 hover:text-primary text-sm sm:text-base"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Exit Study Mode
+            <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Exit Study Mode</span>
+            <span className="sm:hidden">Exit</span>
           </Button>
           <Button
             variant="outline"
             onClick={handleReset}
-            className="border-primary text-primary hover:bg-primary/10"
+            className="border-primary text-primary hover:bg-primary/10 text-sm sm:text-base"
           >
-            <RotateCcw className="mr-2 h-4 w-4" />
-            Restart
+            <RotateCcw className="mr-1 sm:mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Restart</span>
+            <span className="sm:hidden">Reset</span>
           </Button>
         </div>
 
-        <div className="mb-8 animate-slide-up">
-          <h1 className="text-3xl font-bold mb-2 text-foreground">{set.title}</h1>
-          <p className="text-muted-foreground mb-4">
+        <div className="mb-4 sm:mb-8 animate-slide-up">
+          <h1 className="text-xl sm:text-3xl font-bold mb-2 text-foreground truncate">{set.title}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
             Card {currentIndex + 1} of {set.cards.length}
           </p>
           <Progress value={progress} className="h-2" />
         </div>
 
-        <div className="mb-8 perspective-1000">
+        <div className="mb-4 sm:mb-8 perspective-1000">
           <Card
-            className="relative h-96 cursor-pointer shadow-card-hover border-2 border-primary/20 transition-all duration-500 preserve-3d"
+            className="relative h-64 sm:h-96 cursor-pointer shadow-card-hover border-2 border-primary/20 transition-all duration-500 preserve-3d"
             style={{
               transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
               transformStyle: 'preserve-3d'
@@ -181,25 +183,27 @@ const Study = () => {
           </Card>
         </div>
 
-        <div className="flex justify-between gap-4">
+        <div className="flex justify-between gap-2 sm:gap-4">
           <Button
             onClick={handlePrevious}
             disabled={currentIndex === 0}
             variant="outline"
             size="lg"
-            className="flex-1 border-border hover:bg-muted"
+            className="flex-1 border-border hover:bg-muted text-sm sm:text-base"
           >
-            <ChevronLeft className="mr-2 h-5 w-5" />
-            Previous
+            <ChevronLeft className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">Previous</span>
+            <span className="sm:hidden">Prev</span>
           </Button>
           <Button
             onClick={handleNext}
             disabled={currentIndex === set.cards.length - 1}
-            className="flex-1 bg-gradient-primary hover:opacity-90 transition-opacity"
+            className="flex-1 bg-gradient-primary hover:opacity-90 transition-opacity text-sm sm:text-base"
             size="lg"
           >
-            Next
-            <ChevronRight className="ml-2 h-5 w-5" />
+            <span className="hidden sm:inline">Next</span>
+            <span className="sm:hidden">Next</span>
+            <ChevronRight className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
         </div>
 
