@@ -5,8 +5,9 @@ import { SetCard } from '@/components/SetCard';
 import { QRCode } from '@/components/QRCode';
 import { SupabaseTest } from '@/components/SupabaseTest';
 import { storage } from '@/lib/storage';
+import { useOfflineStorage } from '@/hooks/useOfflineStorage';
 import { FlashcardSet } from '@/types/flashcard';
-import { Plus, BookOpen } from 'lucide-react';
+import { Plus, BookOpen, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -25,6 +26,7 @@ const Home = () => {
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [setToDelete, setSetToDelete] = useState<FlashcardSet | null>(null);
+  const { saveOfflineSets, hasOfflineSet } = useOfflineStorage();
   
   // Get the current URL for QR code
   const currentUrl = window.location.href.replace('localhost', window.location.hostname);
@@ -34,12 +36,14 @@ const Home = () => {
       try {
         const sets = await storage.getSets();
         setSets(sets);
+        // Save to offline storage for offline study
+        saveOfflineSets(sets);
       } catch (error) {
         console.error('Error loading sets:', error);
       }
     };
     loadSets();
-  }, []);
+  }, [saveOfflineSets]);
 
   const handleDeleteClick = (id: string) => {
     const set = sets.find(s => s.id === id);
@@ -97,6 +101,21 @@ const Home = () => {
           </h2>
           <div className="flex gap-3">
             <QRCode url={currentUrl} />
+            <Button
+              onClick={() => {
+                saveOfflineSets(sets);
+                toast({
+                  title: "Downloaded for offline!",
+                  description: `${sets.length} quiz sets are now available offline`,
+                });
+              }}
+              variant="outline"
+              className="border-green-500 text-green-600 hover:bg-green-500/10"
+              size="lg"
+            >
+              <Download className="mr-2 h-5 w-5" />
+              Download for Offline
+            </Button>
             <Button
               onClick={() => navigate('/create')}
               className="bg-gradient-primary hover:opacity-90 transition-opacity shadow-card"
