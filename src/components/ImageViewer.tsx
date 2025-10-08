@@ -228,7 +228,11 @@ export const ImageViewer = ({ src, alt = "Image", isOpen, onClose }: ImageViewer
               className="max-w-none select-none touch-none"
               style={{
                 transform: `translate(${position.x}px, ${position.y}px) scale(${scale}) rotate(${rotation}deg)`,
-                transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+                maxWidth: '90vw',
+                maxHeight: '90vh',
+                width: 'auto',
+                height: 'auto'
               }}
               draggable={false}
             />

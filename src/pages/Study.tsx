@@ -120,7 +120,7 @@ const Study = () => {
                     <img
                       src={currentCard.questionImage}
                       alt="Question"
-                      className="max-h-48 mx-auto mb-4 rounded-lg shadow-card object-contain cursor-pointer hover:opacity-80 transition-opacity"
+                      className="max-h-48 sm:max-h-64 md:max-h-80 mx-auto mb-4 rounded-lg shadow-card object-contain cursor-pointer hover:opacity-80 transition-opacity w-full max-w-md"
                       onClick={(e) => handleImageClick(currentCard.questionImage!, e)}
                     />
                   )}
@@ -151,7 +151,7 @@ const Study = () => {
                     <img
                       src={currentCard.answerImage}
                       alt="Answer"
-                      className="max-h-48 mx-auto mb-4 rounded-lg shadow-card object-contain cursor-pointer hover:opacity-80 transition-opacity"
+                      className="max-h-48 sm:max-h-64 md:max-h-80 mx-auto mb-4 rounded-lg shadow-card object-contain cursor-pointer hover:opacity-80 transition-opacity w-full max-w-md"
                       onClick={(e) => handleImageClick(currentCard.answerImage!, e)}
                     />
                   )}

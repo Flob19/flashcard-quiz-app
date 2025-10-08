@@ -100,7 +100,7 @@ export const ImageUpload = ({ value, onChange, label }: ImageUploadProps) => {
           <img
             src={value}
             alt="Preview"
-            className="w-full h-48 object-cover rounded-lg border-2 border-border cursor-pointer hover:opacity-90 transition-opacity"
+            className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg border-2 border-border cursor-pointer hover:opacity-90 transition-opacity"
             onClick={() => setIsViewerOpen(true)}
           />
           <Button
@@ -121,7 +121,7 @@ export const ImageUpload = ({ value, onChange, label }: ImageUploadProps) => {
           </Button>
         </div>
       ) : (
-        <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-border rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/50 transition-colors">
+        <label className="flex flex-col items-center justify-center w-full h-48 sm:h-56 md:h-64 border-2 border-dashed border-border rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/50 transition-colors">
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
             <Upload className="w-10 h-10 mb-3 text-muted-foreground" />
             <p className="mb-2 text-sm text-muted-foreground">
