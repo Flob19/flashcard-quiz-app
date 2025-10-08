@@ -30,9 +30,17 @@ export const useOfflineSync = () => {
       
       try {
         if (isOnline) {
-          // Try to load from Supabase when online
+          // Try to load from Supabase when online with timeout
           console.log('Loading sets from Supabase...');
-          const onlineSets = await storage.getSets();
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), 5000)
+          );
+          
+          const onlineSets = await Promise.race([
+            storage.getSets(),
+            timeoutPromise
+          ]) as FlashcardSet[];
+          
           setSets(onlineSets);
           // Always save to offline storage
           saveOfflineSets(onlineSets);
@@ -58,41 +66,50 @@ export const useOfflineSync = () => {
     loadSets();
   }, [isOnline, saveOfflineSets, getOfflineSets]);
 
-  // Sync when coming back online
-  useEffect(() => {
-    if (isOnline && sets.length > 0) {
-      const syncOfflineToOnline = async () => {
-        try {
-          console.log('Syncing offline sets to Supabase...');
-          const offlineSets = getOfflineSets();
-          for (const set of offlineSets) {
-            try {
-              await storage.saveSet(set);
-            } catch (error) {
-              console.error('Failed to sync set:', error);
-            }
-          }
-          // Reload from Supabase to get latest data
-          const onlineSets = await storage.getSets();
-          setSets(onlineSets);
-          saveOfflineSets(onlineSets);
-          console.log('Sync completed');
-        } catch (error) {
-          console.error('Error syncing:', error);
-        }
-      };
+  // Sync when coming back online (disabled to prevent slow loading)
+  // useEffect(() => {
+  //   if (isOnline && sets.length > 0) {
+  //     const syncOfflineToOnline = async () => {
+  //       try {
+  //         console.log('Syncing offline sets to Supabase...');
+  //         const offlineSets = getOfflineSets();
+  //         for (const set of offlineSets) {
+  //           try {
+  //             await storage.saveSet(set);
+  //           } catch (error) {
+  //             console.error('Failed to sync set:', error);
+  //           }
+  //         }
+  //         // Reload from Supabase to get latest data
+  //         const onlineSets = await storage.getSets();
+  //         setSets(onlineSets);
+  //         saveOfflineSets(onlineSets);
+  //         console.log('Sync completed');
+  //       } catch (error) {
+  //         console.error('Error syncing:', error);
+  //       }
+  //     };
 
-      // Small delay to ensure connection is stable
-      const timeoutId = setTimeout(syncOfflineToOnline, 1000);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [isOnline, getOfflineSets, saveOfflineSets]);
+  //     // Small delay to ensure connection is stable
+  //     const timeoutId = setTimeout(syncOfflineToOnline, 1000);
+  //     return () => clearTimeout(timeoutId);
+  //   }
+  // }, [isOnline, getOfflineSets, saveOfflineSets]);
 
   const refreshSets = async () => {
     setIsLoading(true);
     try {
       if (isOnline) {
-        const onlineSets = await storage.getSets();
+        // Add timeout for refresh too
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 5000)
+        );
+        
+        const onlineSets = await Promise.race([
+          storage.getSets(),
+          timeoutPromise
+        ]) as FlashcardSet[];
+        
         setSets(onlineSets);
         saveOfflineSets(onlineSets);
       } else {

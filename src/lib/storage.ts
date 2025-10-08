@@ -80,22 +80,10 @@ export const storage = {
       return sets;
     } catch (error) {
       console.error('Error in getSets:', error);
-      // Try to sync localStorage to Supabase first
+      // Quick fallback to localStorage without syncing
       const localSets = storage.getSetsFromLocalStorage();
-      if (localSets.length > 0) {
-        console.log('Found local sets, attempting to sync to Supabase...');
-        // Try to sync each local set to Supabase
-        for (const set of localSets) {
-          try {
-            await storage.saveSet(set);
-          } catch (syncError) {
-            console.error('Failed to sync set to Supabase:', syncError);
-          }
-        }
-        // Return the local sets for now
-        return localSets;
-      }
-      return [];
+      console.log(`Fallback: Returning ${localSets.length} sets from localStorage`);
+      return localSets;
     }
   },
 
