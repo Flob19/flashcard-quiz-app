@@ -6,6 +6,7 @@ import { QRCode } from '@/components/QRCode';
 import { SupabaseTest } from '@/components/SupabaseTest';
 import { storage } from '@/lib/storage';
 import { useOfflineStorage } from '@/hooks/useOfflineStorage';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { FlashcardSet } from '@/types/flashcard';
 import { Plus, BookOpen, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -21,29 +22,15 @@ import {
 } from '@/components/ui/alert-dialog';
 
 const Home = () => {
-  const [sets, setSets] = useState<FlashcardSet[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [setToDelete, setSetToDelete] = useState<FlashcardSet | null>(null);
-  const { saveOfflineSets, hasOfflineSet } = useOfflineStorage();
+  const { saveOfflineSets } = useOfflineStorage();
+  const { sets, isLoading, isOnline, refreshSets } = useOfflineSync();
   
   // Get the current URL for QR code
   const currentUrl = window.location.href.replace('localhost', window.location.hostname);
-
-  useEffect(() => {
-    const loadSets = async () => {
-      try {
-        const sets = await storage.getSets();
-        setSets(sets);
-        // Save to offline storage for offline study
-        saveOfflineSets(sets);
-      } catch (error) {
-        console.error('Error loading sets:', error);
-      }
-    };
-    loadSets();
-  }, [saveOfflineSets]);
 
   const handleDeleteClick = (id: string) => {
     const set = sets.find(s => s.id === id);
@@ -57,8 +44,8 @@ const Home = () => {
     if (setToDelete) {
       try {
         await storage.deleteSet(setToDelete.id);
-        const updatedSets = await storage.getSets();
-        setSets(updatedSets);
+        // Refresh sets to get updated list
+        await refreshSets();
         toast({
           title: "Deleted!",
           description: `"${setToDelete.title}" has been permanently deleted`,
@@ -133,6 +120,20 @@ const Home = () => {
 
         <div className="mb-8">
           <SupabaseTest />
+          {/* Connection Status */}
+          <div className="mt-4 p-3 rounded-lg bg-muted/50 text-center">
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <span className="text-muted-foreground">
+                {isOnline ? 'Online - Synced with cloud' : 'Offline - Using local data'}
+              </span>
+            </div>
+            {isLoading && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                Loading study sets...
+              </div>
+            )}
+          </div>
         </div>
 
         {sets.length === 0 ? (

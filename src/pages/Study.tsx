@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { storage } from '@/lib/storage';
 import { useOfflineStorage } from '@/hooks/useOfflineStorage';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { FlashcardSet } from '@/types/flashcard';
 import { ArrowLeft, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -19,24 +20,31 @@ const Study = () => {
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const { getOfflineSets } = useOfflineStorage();
+  const { isOnline } = useOfflineSync();
 
   useEffect(() => {
     if (id) {
       const loadSet = async () => {
         try {
-          // Try to load from online storage first
-          const loadedSet = await storage.getSet(id);
-          if (loadedSet && loadedSet.cards.length > 0) {
-            setSet(loadedSet);
-          } else {
-            // Fallback to offline storage
-            const offlineSets = getOfflineSets();
-            const offlineSet = offlineSets.find(s => s.id === id);
-            if (offlineSet && offlineSet.cards.length > 0) {
-              setSet(offlineSet);
-            } else {
-              navigate('/');
+          if (isOnline) {
+            // Try to load from online storage first
+            console.log('Loading set from Supabase...');
+            const loadedSet = await storage.getSet(id);
+            if (loadedSet && loadedSet.cards.length > 0) {
+              setSet(loadedSet);
+              return;
             }
+          }
+          
+          // Fallback to offline storage
+          console.log('Loading set from offline storage...');
+          const offlineSets = getOfflineSets();
+          const offlineSet = offlineSets.find(s => s.id === id);
+          if (offlineSet && offlineSet.cards.length > 0) {
+            setSet(offlineSet);
+          } else {
+            console.log('Set not found, redirecting to home');
+            navigate('/');
           }
         } catch (error) {
           console.error('Error loading set:', error);
@@ -52,7 +60,7 @@ const Study = () => {
       };
       loadSet();
     }
-  }, [id, navigate, getOfflineSets]);
+  }, [id, navigate, getOfflineSets, isOnline]);
 
   if (!set) return null;
 
