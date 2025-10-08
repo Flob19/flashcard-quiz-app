@@ -16,6 +16,7 @@ export const ImageViewer = ({ src, alt = "Image", isOpen, onClose }: ImageViewer
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [lastTouchDistance, setLastTouchDistance] = useState(0);
 
   // Reset state when dialog opens/closes
   useEffect(() => {
@@ -72,6 +73,60 @@ export const ImageViewer = ({ src, alt = "Image", isOpen, onClose }: ImageViewer
     e.preventDefault();
     const delta = e.deltaY > 0 ? 0.9 : 1.1;
     setScale(prev => Math.max(0.1, Math.min(5, prev * delta)));
+  };
+
+  // Touch handlers for mobile
+  const getTouchDistance = (touches: TouchList) => {
+    if (touches.length < 2) return 0;
+    const touch1 = touches[0];
+    const touch2 = touches[1];
+    return Math.sqrt(
+      Math.pow(touch2.clientX - touch1.clientX, 2) +
+      Math.pow(touch2.clientY - touch1.clientY, 2)
+    );
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    
+    if (e.touches.length === 1) {
+      // Single touch - start dragging
+      setIsDragging(true);
+      setDragStart({
+        x: e.touches[0].clientX - position.x,
+        y: e.touches[0].clientY - position.y
+      });
+    } else if (e.touches.length === 2) {
+      // Two touches - start pinch zoom
+      setIsDragging(false);
+      setLastTouchDistance(getTouchDistance(e.touches));
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault();
+    
+    if (e.touches.length === 1 && isDragging) {
+      // Single touch - continue dragging
+      setPosition({
+        x: e.touches[0].clientX - dragStart.x,
+        y: e.touches[0].clientY - dragStart.y
+      });
+    } else if (e.touches.length === 2) {
+      // Two touches - pinch zoom
+      const currentDistance = getTouchDistance(e.touches);
+      if (lastTouchDistance > 0) {
+        const scaleChange = currentDistance / lastTouchDistance;
+        setScale(prev => Math.max(0.1, Math.min(5, prev * scaleChange)));
+      }
+      setLastTouchDistance(currentDistance);
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    setLastTouchDistance(0);
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -157,17 +212,20 @@ export const ImageViewer = ({ src, alt = "Image", isOpen, onClose }: ImageViewer
 
           {/* Image container */}
           <div
-            className="flex items-center justify-center w-full h-full overflow-hidden cursor-grab active:cursor-grabbing"
+            className="flex items-center justify-center w-full h-full overflow-hidden cursor-grab active:cursor-grabbing touch-none"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
             onWheel={handleWheel}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
             <img
               src={src}
               alt={alt}
-              className="max-w-none select-none"
+              className="max-w-none select-none touch-none"
               style={{
                 transform: `translate(${position.x}px, ${position.y}px) scale(${scale}) rotate(${rotation}deg)`,
                 transition: isDragging ? 'none' : 'transform 0.1s ease-out'
@@ -180,7 +238,8 @@ export const ImageViewer = ({ src, alt = "Image", isOpen, onClose }: ImageViewer
           <div className="absolute bottom-4 left-4 z-10 bg-black/50 text-white px-3 py-2 rounded-lg text-sm">
             Zoom: {Math.round(scale * 100)}% | Rotation: {rotation}° | 
             <span className="ml-2 text-xs opacity-70">
-              Use mouse wheel to zoom, drag to move, R to rotate, 0 to reset, Esc to close
+              Desktop: mouse wheel to zoom, drag to move, R to rotate, 0 to reset, Esc to close<br/>
+              Mobile: pinch to zoom, drag to move, use buttons for rotate/reset
             </span>
           </div>
         </div>
