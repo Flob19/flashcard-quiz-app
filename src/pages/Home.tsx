@@ -94,7 +94,9 @@ const Home = () => {
               onClick={async () => {
                 try {
                   // Force refresh from Supabase
+                  console.log('🔄 Force syncing...');
                   const freshSets = await storage.getSets();
+                  console.log('📊 Fresh sets from Supabase:', freshSets);
                   saveOfflineSets(freshSets);
                   await refreshSets();
                   toast({
@@ -102,6 +104,7 @@ const Home = () => {
                     description: `Refreshed ${freshSets.length} quiz sets from database`,
                   });
                 } catch (error) {
+                  console.error('❌ Force sync failed:', error);
                   toast({
                     title: "Sync failed",
                     description: "Could not refresh data from database",
@@ -148,6 +151,23 @@ const Home = () => {
             <div className="mt-2 text-xs text-muted-foreground">
               Found {sets.length} study sets
             </div>
+            <Button
+              onClick={() => {
+                console.log('🔍 Current sets state:', sets);
+                console.log('🔍 Sets length:', sets.length);
+                console.log('🔍 Is loading:', isLoading);
+                console.log('🔍 Is online:', isOnline);
+                toast({
+                  title: "Debug info logged",
+                  description: `Check console (F12) for details. Sets: ${sets.length}`,
+                });
+              }}
+              variant="ghost"
+              size="sm"
+              className="mt-2 text-xs"
+            >
+              Debug Console
+            </Button>
           </div>
           
           {/* Debug Information */}
