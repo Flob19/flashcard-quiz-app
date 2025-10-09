@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { SetCard } from '@/components/SetCard';
 import { QRCode } from '@/components/QRCode';
 import { SupabaseTest } from '@/components/SupabaseTest';
+import { DebugInfo } from '@/components/DebugInfo';
 import { storage } from '@/lib/storage';
 import { useOfflineStorage } from '@/hooks/useOfflineStorage';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
@@ -89,22 +90,33 @@ const Home = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex gap-3">
               <QRCode url={currentUrl} />
-              <Button
-                onClick={() => {
-                  saveOfflineSets(sets);
+            <Button
+              onClick={async () => {
+                try {
+                  // Force refresh from Supabase
+                  const freshSets = await storage.getSets();
+                  saveOfflineSets(freshSets);
+                  await refreshSets();
                   toast({
-                    title: "Downloaded for offline!",
-                    description: `${sets.length} quiz sets are now available offline`,
+                    title: "Data synced!",
+                    description: `Refreshed ${freshSets.length} quiz sets from database`,
                   });
-                }}
-                variant="outline"
-                className="border-green-500 text-green-600 hover:bg-green-500/10 text-sm sm:text-base"
-                size="lg"
-              >
-                <Download className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                <span className="hidden sm:inline">Download for Offline</span>
-                <span className="sm:hidden">Offline</span>
-              </Button>
+                } catch (error) {
+                  toast({
+                    title: "Sync failed",
+                    description: "Could not refresh data from database",
+                    variant: "destructive"
+                  });
+                }
+              }}
+              variant="outline"
+              className="border-blue-500 text-blue-600 hover:bg-blue-500/10 text-sm sm:text-base"
+              size="lg"
+            >
+              <Download className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="hidden sm:inline">Force Sync</span>
+              <span className="sm:hidden">Sync</span>
+            </Button>
             </div>
             <Button
               onClick={() => navigate('/create')}
@@ -136,6 +148,11 @@ const Home = () => {
             <div className="mt-2 text-xs text-muted-foreground">
               Found {sets.length} study sets
             </div>
+          </div>
+          
+          {/* Debug Information */}
+          <div className="mt-6">
+            <DebugInfo />
           </div>
         </div>
 
