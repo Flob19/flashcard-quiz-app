@@ -29,9 +29,9 @@ export const useOfflineSync = () => {
       setIsLoading(true);
       
       try {
+        // Always try Supabase first when online (for shared data)
         if (isOnline) {
-          // Try to load from Supabase when online with timeout
-          console.log('Loading sets from Supabase...');
+          console.log('Loading sets from Supabase (shared database)...');
           const timeoutPromise = new Promise((_, reject) => 
             setTimeout(() => reject(new Error('Timeout')), 5000)
           );
@@ -42,22 +42,29 @@ export const useOfflineSync = () => {
           ]) as FlashcardSet[];
           
           setSets(onlineSets);
-          // Always save to offline storage
+          // Save to offline storage for offline study
           saveOfflineSets(onlineSets);
-          console.log(`Loaded ${onlineSets.length} sets from Supabase`);
+          console.log(`Loaded ${onlineSets.length} sets from Supabase (shared)`);
         } else {
-          // Use offline storage when offline
-          console.log('Loading sets from offline storage...');
+          // Only use offline storage when truly offline
+          console.log('Offline mode: Loading sets from local storage...');
           const offlineSets = getOfflineSets();
           setSets(offlineSets);
           console.log(`Loaded ${offlineSets.length} sets from offline storage`);
         }
       } catch (error) {
         console.error('Error loading sets:', error);
-        // Fallback to offline storage
-        const offlineSets = getOfflineSets();
-        setSets(offlineSets);
-        console.log(`Fallback: Loaded ${offlineSets.length} sets from offline storage`);
+        // Only fallback to offline if Supabase completely fails
+        if (isOnline) {
+          console.log('Supabase failed, trying offline storage as fallback...');
+          const offlineSets = getOfflineSets();
+          setSets(offlineSets);
+          console.log(`Fallback: Loaded ${offlineSets.length} sets from offline storage`);
+        } else {
+          const offlineSets = getOfflineSets();
+          setSets(offlineSets);
+          console.log(`Offline: Loaded ${offlineSets.length} sets from offline storage`);
+        }
       } finally {
         setIsLoading(false);
       }

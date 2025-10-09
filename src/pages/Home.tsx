@@ -125,7 +125,7 @@ const Home = () => {
             <div className="flex items-center justify-center gap-2 text-sm">
               <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
               <span className="text-muted-foreground">
-                {isOnline ? 'Online - Synced with cloud' : 'Offline - Using local data'}
+                {isOnline ? 'Online - Shared database (all users)' : 'Offline - Local data only'}
               </span>
             </div>
             {isLoading && (
@@ -133,6 +133,9 @@ const Home = () => {
                 Loading study sets...
               </div>
             )}
+            <div className="mt-2 text-xs text-muted-foreground">
+              Found {sets.length} study sets
+            </div>
           </div>
         </div>
 
